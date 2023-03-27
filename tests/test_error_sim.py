@@ -9,7 +9,7 @@ Tests do not cover randomness.
 import numpy as np
 import unittest
 import os
-from kibble_balance_simulator.bl_error_simulator_with_lrc import (
+from moving_mode.error_sim import (
     Bl,
     Clock,
     Coil,
