@@ -1149,8 +1149,8 @@ class Interferometer(object):
         wavelength: float = 633e-9,
         xi: float = 1.0,
         chi: float = 1.8,
-        phi: float = 1.0,
-        theta: float = 1.0,
+        phi: float = 0.5,
+        theta: float = 0.5,
         dE1: float = 0.05,
         dE2: float = 0.05,
     ) -> None:
