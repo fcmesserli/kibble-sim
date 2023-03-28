@@ -9,6 +9,7 @@ Welcome to kibble-sim's documentation!!
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
+   api
 
 
 
