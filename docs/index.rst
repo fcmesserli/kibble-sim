@@ -10,7 +10,8 @@ Welcome to kibble-sim's documentation!!
    :maxdepth: 2
    :caption: Contents:
    
-   api
+   API Documentation <api>
+   Usage <usage>
 
 
 
