@@ -8,7 +8,7 @@ setup(
     # Needed to actually package something
     packages=["moving_mode"],
     # Needed for dependencies
-    install_requires=["numpy, scipy"],
+    install_requires=["numpy", "scipy", "sympy"],
     version="0.1",
     license="MIT",
     description="An example of a python package from pre-existing code",
