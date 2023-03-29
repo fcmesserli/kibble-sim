@@ -33,6 +33,6 @@ The documentation for **Kibble-Sim** can be found
    :alt: Documentation Status
    :scale: 100%
 
-.. |github tests| image:: https://github.com/MSLNZ/kibble-sim/actions/workflows/run-tests.yml/badge.svg
-   :target: https://github.com/MSLNZ/msl-equipment/actions/workflows/run-tests.yml
+.. |github tests| image:: https://github.com/fcmesserli/kibble-sim/actions/workflows/run-tests.yml/badge.svg
+   :target: https://github.com/fcmesserli/kibble-sim/actions/workflows/run-tests.yml
 
