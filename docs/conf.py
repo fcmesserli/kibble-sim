@@ -104,6 +104,12 @@ pygments_style = 'sphinx'
 # If true, to-do and to-doList produce output, else they produce nothing.
 todo_include_todos = True
 
+autodoc_typehints = 'description'  # show typehints in description, not signature
+
+autodoc_typehints_format = 'short'  # drop leading package path as it takes too much space
+
+python_use_unqualified_type_names = True  # workaround, see https://github.com/sphinx-doc/sphinx/issues/10290
+
 
 # -- Options for HTML output ----------------------------------------------
 
