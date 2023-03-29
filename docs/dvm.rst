@@ -1,5 +1,7 @@
 Digital Voltmeter
 =================
 
-.. autoclass:: moving_mode.error_sim.Dvm
+.. currentmodule:: moving_mode.error_sim
+
+.. autoclass:: Dvm
   :members:
