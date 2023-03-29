@@ -13,6 +13,7 @@ Welcome to kibble-sim's documentation!!
    API Documentation <api>
    Usage <usage>
    DVM <dvm>
+   Interferometer <interferometer>
 
 
 
