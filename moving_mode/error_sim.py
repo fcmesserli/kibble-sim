@@ -25,14 +25,13 @@ Typical usage example:
   e.run_experiment()
   e.analyse_simple_sine_fit()
 """
-
+from __future__ import annotations
 
 # Used to create abstract methods: methods that need to be overridden by a
 # subclass
 from abc import ABCMeta, abstractmethod
 
 # Type hints e.g. error_name: str (error_name is a string type object)
-from __future__ import annotations
 from typing import Optional, Tuple
 import numpy as np
 import numpy.typing as npt
