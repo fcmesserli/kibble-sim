@@ -27,6 +27,7 @@ extensions = [
     'sphinx.ext.coverage',
     'sphinx.ext.napoleon',
     'sphinx.ext.todo',
+    'sphinxcontrib.jquery',
 ]
 
 # autodoc options
