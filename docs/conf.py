@@ -110,6 +110,11 @@ autodoc_typehints_format = 'short'  # drop leading package path as it takes too 
 
 python_use_unqualified_type_names = True  # workaround, see https://github.com/sphinx-doc/sphinx/issues/10290
 
+autodoc_type_aliases = {
+    'Iterable': 'Iterable',
+    'ArrayLike': 'ArrayLike'
+}
+
 
 # -- Options for HTML output ----------------------------------------------
 
