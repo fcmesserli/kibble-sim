@@ -14,7 +14,7 @@ To install **Kibble-Sim** run:
 
 .. code-block:: console
 
-   pip install https://github.com/MSLNZ/msl-equipment/archive/main.zip
+   pip install git+https://github.com/fcmesserli/kibble-sim.git#egg=moving_mode
 
 
 
@@ -25,7 +25,7 @@ Compatibility
 
 Documentation
 -------------
-The documentation for *Kibble-Sim** can be found
+The documentation for **Kibble-Sim** can be found
 `here <https://kibble-sim.readthedocs.io/en/latest/>`_.
 
 .. |docs| image:: https://readthedocs.org/projects/kibble-simt/badge/?version=latest
