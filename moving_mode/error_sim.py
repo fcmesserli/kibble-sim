@@ -32,6 +32,7 @@ Typical usage example:
 from abc import ABCMeta, abstractmethod
 
 # Type hints e.g. error_name: str (error_name is a string type object)
+from __future__ import annotations
 from typing import Optional, Tuple
 import numpy as np
 import numpy.typing as npt
