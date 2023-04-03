@@ -1597,7 +1597,7 @@ class MovingModeExperiment(object):
         dvm: Digital voltmeter used in the experiment.
         interferometer: Laser interferometer used in experiment.
         displacement_signal: The true displacement of the coil.
-        time_referece: The time reference clock.
+        time_reference: The time reference clock.
         bl: The true Bl of the magnet/coil setup.
         samp_times: When to send the trigger signal to the DVM and
             interferometer.
@@ -1609,7 +1609,7 @@ class MovingModeExperiment(object):
         dvm: Digital voltmeter used in the experiment.
         interferometer: Laser interferometer used in experiment.
         displacement_signal: The true displacement of the coil.
-        time_referece: The time reference clock.
+        time_reference: The time reference clock.
         bl: The true Bl of the magnet/coil setup.
         samp_times: When to send the trigger signal to the DVM and
             interferometer.
