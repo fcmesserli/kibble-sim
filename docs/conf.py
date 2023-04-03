@@ -114,7 +114,8 @@ python_use_unqualified_type_names = True  # workaround, see https://github.com/s
 autoclass_content = 'both'  # report both the class docs and __init__ docs
 
 autodoc_type_aliases = {
-    'ArrayLike': 'ArrayLike'
+    'ArrayLike': 'ArrayLike',
+    'npt.ArrayLike': 'ArrayLike',
 }
 
 
