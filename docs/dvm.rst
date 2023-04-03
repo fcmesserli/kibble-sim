@@ -1,4 +1,4 @@
-Digital Voltmeter
+Digital Voltmeter (DVM)
 =================
 
 .. currentmodule:: moving_mode.error_sim
