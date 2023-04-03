@@ -5,4 +5,3 @@ Digital Voltmeter (DVM)
 
 .. autoclass:: Dvm
   :members:
-  :exclude-members: clock, timing_latency, integration_time, internal_resistance
