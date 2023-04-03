@@ -40,18 +40,16 @@ from scipy import interpolate
 
 class Signal(object):
     """Parent for all signals; stores and applies time series functions.
-
+    .      
     Attributes:
-        signal_name: Name of the signal.
         additional_signals: List of other Signals to add when generating the
             signal.
     """
 
     __metaclass__ = ABCMeta
 
-    def __init__(self, signal_name: str) -> None:
+    def __init__(self) -> None:
         """Initialise Signal."""
-        self.signal_name = signal_name
         self.additional_signals = []
 
     @abstractmethod  # This function must be overridden by subclass
@@ -74,19 +72,23 @@ class LinearSignal(Signal):
 
     Could be used for signals like linear voltage drift or displacement in
     moving mode. A linear displacement signal used in most Kibble balances.
-
+    
+    Args:
+        velocity: Velocity of the movement.
+        offset: Offset constant for the linear signal i.e. could be used as the
+            initial position for a linear displacement mode.
+    
     Attributes:
         velocity: Velocity of the movement.
         offset: Offset constant for the linear signal i.e. could be used as the
             initial position for a linear displacement mode.
-        signal_name: Name of the signal.
     """
 
     def __init__(
         self, velocity: float, offset: float, signal_name: str = "linear"
     ) -> None:
         """Init LinearSignal."""
-        super().__init__(signal_name)
+        super().__init__()
         self.velocity = velocity
         self.offset = offset
 
@@ -114,13 +116,18 @@ class SineSignal(Signal):
     and used in the PTB balances. Simulations so far have demonstrated good
     vibration rejection but high sensitivity to synchronisation between the
     voltage and velocity signal.
-
+    
+    Args:
+        frequency: Frequency of the oscillation.
+        amplitude: Amplitude of the oscillation.
+        phase: Inital phase of the oscillation.
+        offset: Initial offset/ midpoint of the oscillation.
+    
     Attributes:
         frequency: Frequency of the oscillation.
         amplitude: Amplitude of the oscillation.
         phase: Inital phase of the oscillation.
         offset: Initial offset/ midpoint of the oscillation.
-        signal_name: Name of the signal, default 'linear'.
     """
 
     def __init__(
@@ -129,10 +136,9 @@ class SineSignal(Signal):
         amplitude: float,
         phase: float,
         offset: float,
-        signal_name: str = "sinusoidal",
     ) -> None:
         """Initialise SineSignal with sine parameters."""
-        super().__init__(signal_name)
+        super().__init__()
         self.frequency = frequency
         self.amplitude = amplitude
         self.phase = phase
@@ -161,6 +167,11 @@ class SineSignal(Signal):
 class VibrationNoiseFloor(Signal):
     """Characterises the displacement noise floor in the frequency space.
 
+    Args:
+        frequencies: Frequencies of the noise sinusoids
+        amplitudes: Amplitudes of the noise sinusoids.
+        phases: Phases of the noise sinusoids.
+
     Attributes:
         frequencies: Frequencies of the noise sinusoids
         amplitudes: Amplitudes of the noise sinusoids.
@@ -172,10 +183,9 @@ class VibrationNoiseFloor(Signal):
         frequencies: npt.ArrayLike,
         amplitudes: npt.ArrayLike,
         phases: npt.ArrayLike,
-        signal_name: str = "noise_floor",
     ) -> None:
         """Initialise VibrationNoiseFloor with arrays of sine parameters."""
-        super().__init__(signal_name)
+        super().__init__()
         self.frequencies = np.asarray(frequencies)
         self.amplitudes = np.asarray(amplitudes)
         self.phases = np.asarray(phases)
@@ -280,25 +290,22 @@ class InterpolatedSignal(Signal):
     """Create signal from discrete data with polynomial interpolation.
 
     Uses cubic spline interpolation with 'not a knot' boundary condition.
-
+    
+    Args:
+        times: Array of sampled times corresponding to signal values.
+        signal_values: Value of the signal at corresponding times.
+    
     Attributes:
         signal_interp: Scipy CubicSpline interpolation object of provided data.
-        signal_name: Name of the signal.
     """
 
     def __init__(
         self,
         times: npt.ArrayLike,
         signal_values: npt.ArrayLike,
-        signal_name: str = "interpolated_signal",
     ) -> None:
-        """Initialise InterpolatedSignal.
-
-        Args:
-            times: Array of sampled times corresponding to signal values.
-            signal_values: Value of the signal at corresponding times.
-        """
-        super().__init__(signal_name)
+        """Initialise InterpolatedSignal."""
+        super().__init__()
         self.signal_interp = interpolate.CubicSpline(
             times, signal_values, extrapolate=False
         )
@@ -371,6 +378,9 @@ class RandomNoise(object):
     Can be applied to either the measurement signal or other parameters like
     the timesteps or phase.
 
+    Args:
+        num_samples: number of samples in the measurement signal
+            
     Attributes:
         error_name: name of the error.
     """
@@ -379,11 +389,7 @@ class RandomNoise(object):
 
     @abstractmethod  # This function must be overridden by subclass
     def generate_noise(self, num_samples) -> None:
-        """Create an array to be added to a measurement signal.
-
-        Args:
-            num_samples: number of samples in the measurement signal
-        """
+        """Create an array to be added to a measurement signal. """
         pass
 
 
@@ -393,8 +399,10 @@ class Agwn(RandomNoise):
     Can be applied to either the measurement signal or other parameters like
     the timesteps or phase.
 
+    Args:
+        standard_deviation: Standard deviation of the gaussian white noise.
+    
     Attributes:
-        error_name: Name of the error.
         sigma: Standard deviation of the gaussian white noise.
     """
 
@@ -421,6 +429,13 @@ class Clock(object):
     Clock stability is not considered here and is currently assumed to be
     perfect.
 
+    Args:
+        freq: Frequency of the time reference.
+        phase: Phase of the clock relative to the time reference. So if the
+            reference is at phase pi/2 when this clock ticks, the phase is
+            pi/2.
+        time_jitter: Random noise in timing.
+    
     Attributes:
         freq: Frequency of the time reference.
         phase: Phase of the clock relative to the time reference. So if the
@@ -446,18 +461,17 @@ class QuantisationError(object):
     1 or 0.
 
     Args:
+        digit_resolution_float: Resolution in digits, must be multiple of
+            0.5.
+
+    Attributes:
         digit_resultion: Integer digit cutoff for quantisation error.
         half_digit: Boolean. If resolution includes a half digit then the
             number may have an additional most significant digit with value 1.
     """
 
     def __init__(self, digit_resolution_float: float) -> None:
-        """Init QuantisationError with resolution.
-
-        Args:
-            digit_resolution_float: Resolution in digits, must be multiple of
-                0.5.
-        """
+        """Init QuantisationError with resolution."""
         self.digit_resolution = int(digit_resolution_float)
         if (
             float(2 * digit_resolution_float).is_integer()
@@ -518,7 +532,7 @@ class QuantisationError(object):
 class Coil(object):
     """Primary coil for the Kibble Balance.
 
-    Attributes:
+    Args:
         height: Height (in z direction) of the coil.
         radius: Radius of the coil.
         turns: Number of turns in the coil.
@@ -526,6 +540,15 @@ class Coil(object):
             wires to the DVM to surrounding surfaces.
         inductance: Self inductance of the coil.
         resistance: Resistance of the wire in the coil and wires to the DVM.
+    
+    Attributes:
+        height: Height (in z direction) of the coil.
+        radius: Radius of the coil.
+        turns: Number of turns in the coil.
+        c: Inter-winding capacitance and capacitance of the coil and
+            wires to the DVM to surrounding surfaces.
+        l: Self inductance of the coil.
+        r: Resistance of the wire in the coil and wires to the DVM.
     """
 
     def __init__(
@@ -606,6 +629,13 @@ class Bl(object):
 
     The above relation is only true if everything is properly aligned.
 
+    Args:
+        b_field: Magnetic field strength array with each point corresponding
+            to the location in _b_displacement.
+        b_displacement: Displacement array corresponding to _b_field.
+        coil: Coil object containing coil dimensions.
+        polyfit_order: Order of polynomial fit for Bl.
+    
     Attributes:
         bl_polyfit: np.poly1d polynomial fit for Bl
     """
@@ -617,15 +647,7 @@ class Bl(object):
         coil: Coil,
         polyfit_order: int = 8,
     ) -> None:
-        """Init bl.
-
-        Args:
-            b_field: Magnetic field strength array with each point corresponding
-                to the location in _b_displacement.
-            b_displacement: Displacement array corresponding to _b_field.
-            coil: Coil object containing coil dimensions.
-            polyfit_order: Order of polynomial fit for Bl.
-        """
+        """Init bl."""
         # Attributes are private because changing the variables wouldn't auto-
         # matically change the bl_polyfit. They could be made properties.
         self._b_field = b_field
@@ -1046,6 +1068,12 @@ class TimeIntervalAnalyser(object):
     from the datasheet of the Carmel Instruments NK732. This is done for
     simplicity at the expense of specificity and generality.
 
+    Args:
+        clock: Internal time reference.
+        base_resolution: Max resolution of the TIA (rms/std dev).
+        base_accuracy: Maximum accuracy of the TIA, origins unclear.
+        internal_noise: Internal noise in V^2
+    
     Attributes:
         clock: Internal time reference.
         base_resolution: Max resolution of the TIA (rms/std dev).
@@ -1124,6 +1152,29 @@ class Interferometer(object):
     In the MSL kibble balance three of these will be used to determine the z
     position of the center of the coil.
 
+    Args:
+        integration_time: Time over which one displacement measurement is taken.
+        clock: Internal clock, currently does nothing.
+        interferometer_reference: A clock representing the reference beat
+            signal of the interferometer.
+        tia: Time interval analyser associated with the interferometer.
+        square_slew_rate: Slew rate (gradient) of the square waves that are
+            passed to the tia.
+        square_noise_rms: RMS noise of the square waves that are passed to the
+            tia.
+        timing_latency: Time between receiving the trigger signal and being
+            prepared to make the measurement.
+        wavelength: Wavelength of the laser.
+        xi: Intensity of the measurement arm as it reaches the polariser, arb
+            units.
+        chi: Intensity of the reference arm as it reaches the polariser.
+        phi: Rotation of the half wave plate relative to its ideal value (
+            matching the incoming light and the polarising beam splitter)
+            in degrees.
+        theta: Angle of the polariser relative to 45 degrees.
+        dE1: Ellipticity of the light meant to go into the measurement arm (deg).
+        dE2: Ellipticity of the light meant to go into the reference arm (deg). 
+    
     Attributes:
         integration_time: Time over which one displacement measurement is taken.
         clock: Internal clock, currently does nothing.
@@ -1146,7 +1197,7 @@ class Interferometer(object):
             (rad).
         theta: Angle of the polariser relative to pi/4 radians.
         dE1: Ellipticity of the light meant to go into the measurement arm (rad).
-        dE2: Ellipticity of the light meant to go into the reference arm (rad.
+        dE2: Ellipticity of the light meant to go into the reference arm (rad).
     """
 
     def __init__(
@@ -1166,18 +1217,7 @@ class Interferometer(object):
         dE1: float = 0.05,
         dE2: float = 0.05,
     ) -> None:
-        """Init Interferometer with key parameters including NLE params.
-
-        Args:
-            phi: Rotation of the half wave plate relative to its ideal value (
-                matching the incoming light and the polarising beam splitter)
-                in degrees.
-            theta: Angle of the polariser relative to 45 degrees
-            dE1: Ellipticity of the light meant to go into the measurement arm
-                in degrees.
-            dE2: Ellipticity of the light meant to go into the reference arm
-                in degrees.
-        """
+        """Init Interferometer with key parameters including NLE params."""
         # TODO(finneganc): find out about interferometer latency
         self.integration_time = integration_time
         self.clock = clock
@@ -1554,7 +1594,19 @@ class MovingModeExperiment(object):
     """One or more continuous moving mode measurements.
 
     Setup, run, and analyse.
-
+    
+    Args:
+        dvm: Digital voltmeter used in the experiment.
+        interferometer: Laser interferometer used in experiment.
+        displacement_signal: The true displacement of the coil.
+        time_referece: The time reference clock.
+        bl: The true Bl of the magnet/coil setup.
+        samp_times: When to send the trigger signal to the DVM and
+            interferometer.
+        weighing_pos: The z position to be used in the weighing mode.
+        coil_correction: Whether alter measured voltage due to LRC nature of
+            the coil.
+            
     Attributes:
         dvm: Digital voltmeter used in the experiment.
         interferometer: Laser interferometer used in experiment.
