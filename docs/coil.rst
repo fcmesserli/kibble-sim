@@ -1,4 +1,4 @@
-Digital Voltmeter
+Coil
 =================
 
 .. currentmodule:: moving_mode.error_sim
