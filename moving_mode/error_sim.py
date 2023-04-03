@@ -376,20 +376,18 @@ class RandomNoise(object):
     """Randomly generatde noise to be added to time-series data.
 
     Can be applied to either the measurement signal or other parameters like
-    the timesteps or phase.
-
-    Args:
-        num_samples: number of samples in the measurement signal
-            
-    Attributes:
-        error_name: name of the error.
+    the timesteps or phase.        
     """
 
     __metaclass__ = ABCMeta
 
     @abstractmethod  # This function must be overridden by subclass
     def generate_noise(self, num_samples) -> None:
-        """Create an array to be added to a measurement signal. """
+        """Create an array to be added to a measurement signal.
+        
+        Args:
+            num_samples: Length of array of random noise samples.
+        """
         pass
 
 
