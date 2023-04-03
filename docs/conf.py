@@ -111,7 +111,7 @@ autodoc_typehints_format = 'short'  # drop leading package path as it takes too 
 
 python_use_unqualified_type_names = True  # workaround, see https://github.com/sphinx-doc/sphinx/issues/10290
 
-autoclass_content = 'both'  # report both the class docs and __init__ docs
+# autoclass_content = 'both'  # report both the class docs and __init__ docs
 
 autodoc_type_aliases = {
     'ArrayLike': 'ArrayLike',
