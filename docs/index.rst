@@ -5,21 +5,33 @@
 
 Welcome to kibble-sim's documentation!!
 =======================================
+A physics simulation of the MSL kibble balance so we can understand the interacting systems and resulting uncertainties.
+
+Install
+-------
+To install **Kibble-Sim** run:
+
+.. code-block:: console
+
+   pip install git+https://github.com/fcmesserli/kibble-sim.git#egg=moving_mode
+
+
+
+Compatibility
+-------------
+**Kibble-Sim** is tested with Python  3.7+ on Windows, Linux and macOS.
+
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Contents:
    
-   API Documentation <api>
-   Usage <usage>
-   DVM <dvm>
+
+   Digital Voltmeter (DVM) <dvm>
    Interferometer <interferometer>
+   Time Interval Analyser (TIA) <time_interval_analyser>
+   Coil <coil>
+   Magnetic Circuit (Bl) <magnetic circuit>
+   Signals <signals>
+   Moving Mode Experiment <moving_mode_experiment>
 
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
