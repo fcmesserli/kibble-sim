@@ -750,7 +750,8 @@ class Dvm(object):
         timing_latency: Timing latency when using an external trigger. The
             3458A can differ by up to 125ns model to model. Worth testing as it
             was much larger than specified for Lapuh (2018).
-        integration_time:
+        integration_time: Time over which the voltage measurement is integrated.
+        internal_resistance: Internal resistance of the DVM.
     """
 
     def __init__(
@@ -776,7 +777,19 @@ class Dvm(object):
         ),
         internal_resistance: float = 1e10,
     ) -> None:
-        """Init Dvm."""
+        """Init Dvm.
+        
+        Args:
+            integration_time: Time over which the voltage measurement is integrated.
+            clock: Clock object containing relavent information for the internal
+                clock of the DVM.
+            timing_latency: Timing latency when using an external trigger. The
+                3458A can differ by up to 125ns model to model. Worth testing as it
+                was much larger than specified for Lapuh (2018).
+            quantisation_digits: Digit resolution at the integration time thresholds.
+            quantisation_thresholds: Integration time thresholds for resolution.
+            internal_resistance: Internal resistance of the DVM.
+        """
         # TODO(finneganc): make integration_time & quantisations properties
         self.clock = clock
         self.timing_latency = timing_latency
