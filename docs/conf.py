@@ -49,7 +49,7 @@ else:
 autosummary_generate = True
 
 # include both class docstring and __init__
-# autoclass_content = "both"
+autoclass_content = "init"
 
 # Napoleon settings
 napoleon_google_docstring = True
