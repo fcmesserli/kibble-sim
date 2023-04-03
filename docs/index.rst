@@ -26,12 +26,13 @@ Compatibility
    :maxdepth: 1
    :caption: Contents:
    
-
+   Clock <clock>
    Digital Voltmeter (DVM) <dvm>
    Interferometer <interferometer>
    Time Interval Analyser (TIA) <time_interval_analyser>
    Coil <coil>
-   Magnetic Circuit (Bl) <magnetic circuit>
+   Magnetic Circuit (Bl) <magnetic_circuit>
    Signals <signals>
+   Random Noises <random_noises>
    Moving Mode Experiment <moving_mode_experiment>
 
