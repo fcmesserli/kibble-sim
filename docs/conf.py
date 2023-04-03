@@ -48,8 +48,6 @@ else:
 # Generate autodoc stubs with summaries from code
 autosummary_generate = True
 
-# include both class docstring and __init__
-autoclass_content = "both"
 
 # Napoleon settings
 napoleon_google_docstring = True
@@ -110,8 +108,6 @@ autodoc_typehints = 'description'  # show typehints in description, not signatur
 autodoc_typehints_format = 'short'  # drop leading package path as it takes too much space
 
 python_use_unqualified_type_names = True  # workaround, see https://github.com/sphinx-doc/sphinx/issues/10290
-
-# autoclass_content = 'both'  # report both the class docs and __init__ docs
 
 autodoc_type_aliases = {
     'ArrayLike': 'ArrayLike',
