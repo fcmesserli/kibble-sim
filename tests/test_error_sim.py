@@ -286,8 +286,10 @@ class TestQuantisationError(unittest.TestCase):
         ]
         x_quantised = self.quantisation_error.apply_quantisation(x)
         for i, v in enumerate(expected_quantised):
-            print(x_quantised[i] - v)
-            self.assertAlmostEqual(x_quantised[i], v, 13)
+            if v != 0:
+                self.assertAlmostEqual((x_quantised[i]-v)/v, 0, 13)
+            else:
+                self.assertAlmostEqual((x_quantised[i], 0, 13)
 
 
 class TestInterferometer(unittest.TestCase):
