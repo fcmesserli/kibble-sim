@@ -287,6 +287,7 @@ class TestQuantisationError(unittest.TestCase):
         x_quantised = self.quantisation_error.apply_quantisation(x)
         for i, v in enumerate(expected_quantised):
             if v != 0:
+                print(v)
                 self.assertAlmostEqual((x_quantised[i]-v)/v, 0, 13)
             else:
                 self.assertAlmostEqual(x_quantised[i], 0, 13)
