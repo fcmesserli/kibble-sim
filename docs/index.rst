@@ -13,7 +13,7 @@ To install **Kibble-Sim** run:
 
 .. code-block:: console
 
-   pip install git+https://github.com/fcmesserli/kibble-sim.git#egg=moving_mode
+   pip install git+https://github.com/fcmesserli/kibble-sim.git#egg=kibble-sim
 
 
 
