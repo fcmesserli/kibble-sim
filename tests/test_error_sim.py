@@ -289,7 +289,7 @@ class TestQuantisationError(unittest.TestCase):
             if v != 0:
                 self.assertAlmostEqual((x_quantised[i]-v)/v, 0, 13)
             else:
-                self.assertAlmostEqual((x_quantised[i], 0, 13)
+                self.assertAlmostEqual(x_quantised[i], 0, 13)
 
 
 class TestInterferometer(unittest.TestCase):
