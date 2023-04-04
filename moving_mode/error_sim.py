@@ -984,10 +984,10 @@ class Dvm(object):
             )
             # If the noise floor is present, add each component to the array
             for signal in displacement_signal.additional_signals:
-                if type(displacement_signal) != VibrationNoiseFloor:
+                if type(signal) != VibrationNoiseFloor:
                     # At this stage the symbolic integration only works with sinusoids
                     raise ValueError(
-                        f"additional signal must be of type VibrationNoiseFloor not {type(displacement_signal)}"
+                        f"additional signal must be of type VibrationNoiseFloor not {type(signal)}"
                     )
                 for f, a, phase in zip(
                     signal.frequencies, signal.amplitudes, signal.phases
