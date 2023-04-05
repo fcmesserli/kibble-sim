@@ -919,7 +919,6 @@ class Dvm(object):
         return voltage_time
 
     def get_voltage_integral(self, displacement_signal, bl):
-        print('getting integral')
         if type(displacement_signal) != SineSignal:
             # At this stage the symbolic integration only works with sinusoids
             raise ValueError(
@@ -1051,20 +1050,12 @@ class Dvm(object):
                 voltage_integral, t, phi_dict = self.get_voltage_integral(
                         displacement_signal, bl)
                 
-            average_voltage = (
-                np.asarray(
-                    [
-                        voltage_integral.evalf(
-                            subs={t: time + self.integration_time} | phi_dict
-                        )
-                        - voltage_integral.evalf(subs={t: time} | phi_dict)
-                        for time in voltage_time
-                    ]
-                )
-                / self.integration_time
-            )
-            # Sympy uses it's own float types. Convert to numpy
-            average_voltage = np.asarray(average_voltage).astype(np.float64)
+            phi_symbols, phi_values = zip(*phi_dict.items())
+            
+            voltage_fn = sympy.lambdify([t] + list(phi_symbols), voltage_integral, "numpy")
+            average_voltage = (voltage_fn(voltage_time+self.integration_time, *phi_values)
+                    -  voltage_fn(voltage_time, *phi_values))/self.integration_time
+
 
         if type(self._quantisation_digits) != type(None):
             average_voltage = self.quantisation_error.apply_quantisation(
