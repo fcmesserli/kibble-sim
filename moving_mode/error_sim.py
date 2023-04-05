@@ -36,6 +36,7 @@ from typing import Optional, Tuple
 import numpy as np
 import numpy.typing as npt
 from scipy import interpolate
+import sympy
 
 
 class Signal(object):
@@ -917,6 +918,89 @@ class Dvm(object):
         )
         return voltage_time
 
+    def get_voltage_integral(self, displacement_signal, bl):
+        print('getting integral')
+        if type(displacement_signal) != SineSignal:
+            # At this stage the symbolic integration only works with sinusoids
+            raise ValueError(
+                f"displacement signal must be of type SineSignal not {type(displacement_signal)}"
+            )
+        # Prepare an array where each entry represents one signal saved as
+        # [w, A, phase, correction factor for sine, correction factor for cosine]
+        signal_array = []
+        w = displacement_signal.frequency * 2 * np.pi
+        signal_array.append(
+            [
+                w,
+                displacement_signal.amplitude,
+                displacement_signal.phase,
+                bl.coil.get_voltage_sin_scale_factor(
+                    w, self.internal_resistance
+                ),
+                bl.coil.get_voltage_cos_scale_factor(
+                    w, self.internal_resistance
+                ),
+            ]
+        )
+        # If the noise floor is present, add each component to the array
+        for signal in displacement_signal.additional_signals:
+            if type(signal) != VibrationNoiseFloor:
+                # At this stage the symbolic integration only works with sinusoids
+                raise ValueError(
+                    f"additional signal must be of type VibrationNoiseFloor not {type(signal)}"
+                )
+            for f, a, phase in zip(
+                signal.frequencies, signal.amplitudes, signal.phases
+            ):
+                w = 2 * np.pi * f
+                signal_array.append(
+                    [
+                        w,
+                        a,
+                        phase,
+                        bl.coil.get_voltage_sin_scale_factor(
+                            w, self.internal_resistance
+                        ),
+                        bl.coil.get_voltage_cos_scale_factor(
+                            w, self.internal_resistance
+                        ),
+                    ]
+                )
+
+
+        t = sympy.Symbol("t")
+        position = 0
+        # Set up symbolic position signal
+        phis = sympy.symbols('phi:'+str(len(signal_array)))
+        for i, signal in enumerate(signal_array):
+            position += signal[1] * sympy.sin(signal[0] * t + phis[i])
+        bl_at_t = 0
+        # Use polynomial form of B field to find Bl(z(t))
+        for i, c in enumerate(bl.bl_polyfit.c):
+            bl_at_t += bl.bl_polyfit.c[i] * position ** (
+                len(bl.bl_polyfit.c) - i - 1
+            )
+        # Determine the integrand according to the circuit model
+        to_integrate = 0
+        for signal in signal_array:
+            to_integrate += (
+                bl_at_t
+                * signal[0]
+                * signal[1]
+                * (
+                    signal[3]
+                    * sympy.sin(signal[0] * t + signal[2] + np.pi / 2)
+                    + signal[4]
+                    * sympy.cos(signal[0] * t + signal[2] + np.pi / 2)
+                )
+            )
+        # Integrate
+        voltage_integral = sympy.integrate(to_integrate, t)
+        # Determine measured voltage
+        phi_dict = {phi: signal_array[i][2] for i, phi in enumerate(phis)}
+        
+        return voltage_integral, t, phi_dict
+
     def measure_voltage(
         self,
         displacement_signal: Signal,
@@ -924,6 +1008,7 @@ class Dvm(object):
         time_reference: Clock,
         bl: Bl,
         coil_correction: bool = False,
+        coil_correction_params: tuple=None,
     ) -> np.ndarray:
         """Measure the average voltage over the integration time.
 
@@ -960,90 +1045,19 @@ class Dvm(object):
         # linear or at least determine its time constant to ensure it isn't a
         # problem
         if coil_correction:
-            if type(displacement_signal) != SineSignal:
-                # At this stage the symbolic integration only works with sinusoids
-                raise ValueError(
-                    f"displacement signal must be of type SineSignal not {type(displacement_signal)}"
-                )
-            # Prepare an array where each entry represents one signal saved as
-            # [w, A, phase, correction factor for sine, correction factor for cosine]
-            signal_array = []
-            w = displacement_signal.frequency * 2 * np.pi
-            signal_array.append(
-                [
-                    w,
-                    displacement_signal.amplitude,
-                    displacement_signal.phase,
-                    bl.coil.get_voltage_sin_scale_factor(
-                        w, self.internal_resistance
-                    ),
-                    bl.coil.get_voltage_cos_scale_factor(
-                        w, self.internal_resistance
-                    ),
-                ]
-            )
-            # If the noise floor is present, add each component to the array
-            for signal in displacement_signal.additional_signals:
-                if type(signal) != VibrationNoiseFloor:
-                    # At this stage the symbolic integration only works with sinusoids
-                    raise ValueError(
-                        f"additional signal must be of type VibrationNoiseFloor not {type(signal)}"
-                    )
-                for f, a, phase in zip(
-                    signal.frequencies, signal.amplitudes, signal.phases
-                ):
-                    w = 2 * np.pi * f
-                    signal_array.append(
-                        [
-                            w,
-                            a,
-                            phase,
-                            bl.coil.get_voltage_sin_scale_factor(
-                                w, self.internal_resistance
-                            ),
-                            bl.coil.get_voltage_cos_scale_factor(
-                                w, self.internal_resistance
-                            ),
-                        ]
-                    )
-
-            import sympy
-
-            t = sympy.Symbol("t")
-            position = 0
-            # Set up symbolic position signal
-            for signal in signal_array:
-                position += signal[1] * sympy.sin(signal[0] * t + signal[2])
-            bl_at_t = 0
-            # Use polynomial form of B field to find Bl(z(t))
-            for i, c in enumerate(bl.bl_polyfit.c):
-                bl_at_t += bl.bl_polyfit.c[i] * position ** (
-                    len(bl.bl_polyfit.c) - i - 1
-                )
-            # Determine the integrand according to the circuit model
-            to_integrate = 0
-            for signal in signal_array:
-                to_integrate += (
-                    bl_at_t
-                    * signal[0]
-                    * signal[1]
-                    * (
-                        signal[3]
-                        * sympy.sin(signal[0] * t + signal[2] + np.pi / 2)
-                        + signal[4]
-                        * sympy.cos(signal[0] * t + signal[2] + np.pi / 2)
-                    )
-                )
-            # Integrate
-            voltage_integral = sympy.integrate(to_integrate, t)
-            # Determine measured voltage
+            if coil_correction_params != None:
+                voltage_integral, t, phi_dict = coil_correction_params
+            else:
+                voltage_integral, t, phi_dict = self.get_voltage_integral(
+                        displacement_signal, bl)
+                
             average_voltage = (
                 np.asarray(
                     [
                         voltage_integral.evalf(
-                            subs={t: time + self.integration_time}
+                            subs={t: time + self.integration_time} | phi_dict
                         )
-                        - voltage_integral.evalf(subs={t: time})
+                        - voltage_integral.evalf(subs={t: time} | phi_dict)
                         for time in voltage_time
                     ]
                 )
@@ -1636,6 +1650,7 @@ class MovingModeExperiment(object):
         samp_times: npt.ArrayLike,
         weighing_pos: float = 0,
         coil_correction: bool = False,
+        reuse_integral = True
     ) -> None:
         """Set up experiment."""
         self.dvm = dvm
@@ -1648,6 +1663,8 @@ class MovingModeExperiment(object):
         self.v_results = None
         self.displacement_start = None
         self.displacement_end = None
+        self.reuse_integral = reuse_integral
+        self.voltage_integral = None
         self.weighing_pos = weighing_pos
         # TODO(finneganc): Rename to bl_at_weighing_pos
         self.bl_weighing_pos = self.bl.at_z(self.weighing_pos)
@@ -1704,6 +1721,9 @@ class MovingModeExperiment(object):
         self.v_results = []
         self.displacement_start = []
         self.displacement_end = []
+        if self.coil_correction and self.reuse_integral and self.voltage_integral==None:
+            self.voltage_integral = self.dvm.get_voltage_integral(
+                    self.displacement_signal, self.bl)
         for run in range(num_runs):
             measured_voltage = self.dvm.measure_voltage(
                 self.displacement_signal,
@@ -1711,6 +1731,7 @@ class MovingModeExperiment(object):
                 self.time_reference,
                 self.bl,
                 coil_correction=self.coil_correction,
+                coil_correction_params = self.voltage_integral
             )
 
             (
