@@ -981,16 +981,16 @@ class Dvm(object):
             )
         # Determine the integrand according to the circuit model
         to_integrate = 0
-        for signal in signal_array:
+        for i, signal in enumerate(signal_array):
             to_integrate += (
                 bl_at_t
                 * signal[0]
                 * signal[1]
                 * (
                     signal[3]
-                    * sympy.sin(signal[0] * t + signal[2] + np.pi / 2)
+                    * sympy.sin(signal[0] * t + phis[i] + np.pi / 2)
                     + signal[4]
-                    * sympy.cos(signal[0] * t + signal[2] + np.pi / 2)
+                    * sympy.cos(signal[0] * t + phis[i] + np.pi / 2)
                 )
             )
         # Integrate
@@ -1028,17 +1028,18 @@ class Dvm(object):
                 "Sampling time cannot be less than integration time"
             )
         voltage_time = self.determine_sample_times(samp_times, time_reference)
-        displacement_start = displacement_signal.generate_signal(voltage_time)
-        displacement_end = displacement_signal.generate_signal(
-            voltage_time + self.integration_time
-        )
+        if not coil_correction:
+            displacement_start = displacement_signal.generate_signal(voltage_time)
+            displacement_end = displacement_signal.generate_signal(
+                voltage_time + self.integration_time
+            )
 
-        # TODO(finneganc): protect against an out of range z
-        poly_int = np.polyint(bl.bl_polyfit)
-        average_voltage = (
-            np.polyval(poly_int, displacement_end)
-            - np.polyval(poly_int, displacement_start)
-        ) / self.integration_time
+            # TODO(finneganc): protect against an out of range z
+            poly_int = np.polyint(bl.bl_polyfit)
+            average_voltage = (
+                np.polyval(poly_int, displacement_end)
+                - np.polyval(poly_int, displacement_start)
+            ) / self.integration_time
 
         # TODO(finneganc): Consider implementing the transient coil effect for
         # linear or at least determine its time constant to ensure it isn't a
@@ -1046,6 +1047,16 @@ class Dvm(object):
         if coil_correction:
             if coil_correction_params != None:
                 voltage_integral, t, phi_dict = coil_correction_params
+                # Reset phases to their (potentially) new values
+                if len(phi_dict) == 1:
+                    phi_dict[sympy.Symbol('phi0')] = displacement_signal.phase
+                elif len(phi_dict) > 1:
+                    i=0
+                    for signal in displacement_signal.additional_signals:
+                        for phase in signal.phases:
+                            phi_dict[sympy.Symbol('phi'+str(i+1))] = phase
+                            i+=1
+                
             else:
                 voltage_integral, t, phi_dict = self.get_voltage_integral(
                         displacement_signal, bl)
