@@ -1022,7 +1022,7 @@ class Dvm(object):
         Returns:
             voltage measurement at (roughly) the specified sampled times
         """
-        if min(np.diff(samp_times)) < self.integration_time:
+        if min(np.diff(samp_times)) - self.integration_time < -1e-14:
             # This is because the DVM needs time to integrate (and maybe process)
             raise ValueError(
                 "Sampling time cannot be less than integration time"
@@ -1086,7 +1086,7 @@ class TimeIntervalAnalyser(object):
         clock: Internal time reference.
         base_resolution: Max resolution of the TIA (rms/std dev).
         base_accuracy: Maximum accuracy of the TIA, origins unclear.
-        internal_noise: Internal noise in V^2
+        internal_noise: Internal noise in V
     
     Attributes:
         clock: Internal time reference.
@@ -1179,9 +1179,8 @@ class Interferometer(object):
         timing_latency: Time between receiving the trigger signal and being
             prepared to make the measurement.
         wavelength: Wavelength of the laser.
-        xi: Intensity of the measurement arm as it reaches the polariser, arb
-            units.
-        chi: Intensity of the reference arm as it reaches the polariser.
+        xi: Transmission coefficient of the reference beam.
+        chi: Transmission coeffient of the measurement beam.
         phi: Rotation of the half wave plate relative to its ideal value (
             matching the incoming light and the polarising beam splitter)
             in degrees.
@@ -1202,9 +1201,8 @@ class Interferometer(object):
         timing_latency: Time between receiving the trigger signal and being
             prepared to make the measurement.
         wavelength: Wavelength of the laser.
-        xi: Intensity of the measurement arm as it reaches the polariser, arb
-            units.
-        chi: Intensity of the reference arm as it reaches the polariser.
+        xi: Transmission coefficient of the reference beam. 
+        chi: Transmission coefficient of the measurement beam.
         alpha: Offset angle of the polarised light meant for the reference arm
             (rad).
         beta: Offset angle of the polarised light meant for the measurement arm
@@ -1519,7 +1517,7 @@ class Interferometer(object):
         Raises:
             ValueError: If sampling time less than integration time.
         """
-        if min(np.diff(samp_times)) < self.integration_time:
+        if min(np.diff(samp_times)) - self.integration_time < -1e-14:
             # This is because the DVM needs time to integrate (and maybe process)
             raise ValueError(
                 "Sampling time cannot be less than integration time"
